@@ -19,5 +19,9 @@ This repository contains collection of notes, examples, and scripts to learn **L
 
 [File Management](./04%20File%20Management/README.md)
 
+[File Permission](./05%20File%20Permission/README.md)
+
+[Process Management](./06-process-management/README.md)
+
 > ✨ *I’ll keep updating this repository as I learn more Linux concepts and commands.*
 
