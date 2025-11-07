@@ -72,7 +72,7 @@
 | `5`     | 4+1 = r-x   | read & execute |
 | `4`     | read only   | r--            |
 
-## Changing Permission of File and Folder
+## Changing Permission of File and Directory
 
 - `chmod` (change mode): Changes permissions (read/write/execute) 
 
@@ -101,3 +101,44 @@ chmod 744 file.txt # rwxr--r-- (owner read/write/execute, group/others read-only
 chmod 700 private_key # rwx------ (owner only)
 ```
 
+## Changing Ownership of File and Directory
+
+- `chown` (change owner): Change the user or group ownership of a file/Directory.
+- Syntax: `chown [OPTIONS] NEW-USER:NEW-GROUP FILE/FOLDER`
+    - USER: New user name
+    - GROUP: Optional.
+    - `:`: Seperator
+- You must have root (superuser) privileges to change ownership
+
+> When you change the ownership the location of the file or directory doesn't change
+
+### Change only Ownership
+
+```sh
+chown developer file.txt
+
+chown developer folder1
+```
+
+### Change both Owner and Group 
+
+```sh
+chown developer:developer file.txt
+
+chown developer:developer folder1
+```
+
+### Change only group
+
+```sh
+chown :developer file1.txt
+
+chown :developer folder
+```
+
+
+### Change Ownership Recursively (for all subdirectories/files):
+
+```sh
+chown -R developer:developer /home/qe
+```
