@@ -34,7 +34,7 @@
 
 - **On a file**: Run file as program/script
 - **On a directory**: Enter (or "changing into") the directory with `cd`
-    - You cannot access files inside a directory without `x` permission on it, even if you have `r` permission.
+  - You cannot access files inside a directory without `x` permission on it, even if you have `r` permission.
 
 ## Numeric Representation of Permissions
 
@@ -62,7 +62,6 @@
 - `Nov 4` : modification date
 - `script.sh` : file name
 
-
 ### Combining the Numeric Permission Values
 
 | Example | Meaning     | Symbolic       |
@@ -74,7 +73,7 @@
 
 ## Changing Permission of File and Directory
 
-- `chmod` (change mode): Changes permissions (read/write/execute) 
+- `chmod` (change mode): Changes permissions (read/write/execute)
 
 ### Symbolic Method (letters)
 
@@ -101,15 +100,23 @@ chmod 744 file.txt # rwxr--r-- (owner read/write/execute, group/others read-only
 chmod 700 private_key # rwx------ (owner only)
 ```
 
-## Changing Ownership of File and Directory
+### Recusrive method
 
-- `chown` (change owner): Change the user or group ownership of a file/Directory.
+- Everything inside the directory will have the same permission.
+
+```sh
+$chmod -R 755 /path/to/directory
+```
+
+## chown(change owner)
+
+- It changes the owner or group of a file or directory.
 - Syntax: `chown [OPTIONS] NEW-USER:NEW-GROUP FILE/FOLDER`
-    - USER: New user name
-    - GROUP: Optional.
-    - `:`: Seperator
-- You must have root (superuser) privileges to change ownership
+  - USER: New user name
+  - GROUP: Optional.
+  - `:`: Seperator
 
+> You must have root (superuser) privileges to change ownership
 > When you change the ownership the location of the file or directory doesn't change
 
 ### Change only Ownership
@@ -120,7 +127,7 @@ chown developer file.txt
 chown developer folder1
 ```
 
-### Change both Owner and Group 
+### Change both Owner and Group
 
 ```sh
 chown developer:developer file.txt
@@ -136,9 +143,99 @@ chown :developer file1.txt
 chown :developer folder
 ```
 
-
 ### Change Ownership Recursively (for all subdirectories/files):
 
 ```sh
 chown -R developer:developer /home/qe
 ```
+
+## Symlink (Symbolic Link)
+
+- Symlink stores a path pointing to the original file or directory.
+- If the original file or directory is deleted, the symlink becomes broken.
+- `ln -s /path/to/original /path/to/symlink`
+
+### Options
+
+- `s`: Create Symbolic Link
+- `f`: Force. Overwrite if the symlink already exists.
+- `v`: Verbose. Show what link is created.
+- `n`: Treat link name as a normal file.
+
+### Using Absolute Path
+
+```sh
+ln -s /home/user/documents/file.txt /home/user/desktop/file_link
+```
+
+### Using Relative Path
+
+```sh
+# if you are in the directory where the file exists
+ln -s ../documents/file.txt ./desktop/file_link
+
+# if you are in the directory where the symlink will be created
+ln -s ../documents/file.txt file_link
+```
+
+### When symlink break?
+
+- If the original file or directory is deleted.
+- If the symlink is moved to a different location (relative path only)
+- If the directory structure changes.
+- If the file or directory is renamed.
+
+> Symlink works fine if the original file or directory is modified.
+> Using absolute path is recommended.
+
+### When to use Symlink?
+
+- When you need a shortcut to another location or file
+- When you want safe behavour(If target is removed, symlink breaks.)
+- Deployment structure
+  - /app/releases/v1
+  - /app/releases/v2
+  - /app/current → /app/releases/v2
+
+## Hard Link
+
+- Another name for the same file.
+- Every file on Linux/Mac has two parts:
+  - The filename: human-readable name.
+  - The inode: a unique ID that holds metadata (size, permissions) and points to the actual data.
+- Hard link adds a second filename to the same inode.
+
+`ln /path/to/original /path/to/hardlink`
+
+```sh
+echo "hello" > file.txt
+ln file.txt hardlink.txt        # create hard link
+```
+
+```
+file.txt     ──┐
+               ├──►  inode 42  ──►  [data: "hello"]
+hardlink.txt ──┘
+```
+
+### Characteristics of Hard Link
+
+- Edit one file, the other changes too.
+- Delete one file, the other still exists.
+- Data only deleted when ALL names are removed
+- Hard links point to an inode, not a path. So relative or absolute makes zero difference.
+- Hard link cannot be created for directories.(Root user can but it's not recommended)
+
+### Options
+
+- `f`: Force. Overwrite if the hardlink already exists.
+- `v`: Verbose. Show what link is created.
+- `i`: Ask before overwriting.
+
+> Hard links almost NEVER break like symlinks. Because they do not depend on file name.
+
+### When to use Hard Link?
+
+- When you want true duplicate name for same file.
+- When you want file to survive deletion of original name.
+- When you want to create a backup of a file.(It doesn't copy the data)
