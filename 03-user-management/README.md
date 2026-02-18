@@ -1,18 +1,31 @@
 # User Management
 
 - Linux is a multi-user operating system, meaning multiple users can operate on a system simultaneously.
-- User management in linux involves creating, modifying, and deleting user accounts and groups to control access to system resources.
+- User management in linux involves
+  - creating,
+  - modifying,
+  - and deleting user accounts and groups,
+  - Controlling authentication and authorization.
 - Proper user management ensures security, controlled access, separation of user data and privileges.
+
+`whoami`: Prints the current user name.
+
+Each user is identified by a unique **User ID (UID)** and **Group ID (GID)** not just by thier username.
+
+## Types of Users
+
+1. **Root User**: The superuser with full control over the system. UID is always 0.
+2. **System Users**: Users created by the system for services and applications. UID ranges from 1 to 999.
+3. **Regular Users**: Users created by the administrator for daily tasks. UID starts from 1000 and above.
+4. **Process Users**: Users created for specific services or applications.
 
 ## Cheking the existing users
 
+- `ls -l /home`: prints all the users are in the home directory
+- `cat /etc/passwd`: prints all the users are in the system
+- `cat /etc/shadow` prints all the users are in the system with their encrypted password
+
 ```bash
-# prints all the users are in the home directory
-ls -l /home
-
-# prints all the users are in the system
-cat /etc/passwd
-
 <<'COMMENT'
 root:x:0:0:root:/root:/bin/bash
 
@@ -24,12 +37,7 @@ k-subramanyeshwara:x:1000:1000:K Subramanyeshwara:/home/k-subramanyeshwara:/bin/
 First linux user that is created during the installation of the system will have the user id as 1000 and group id as 1000.
 
 COMMENT
-
-# prints all the users are in the system with their encrypted password
-cat /etc/shadow
 ```
-
-> userid below 1000 are reserved for system users and above 1000 are reserved for normal users.
 
 ## Creating a user:
 
@@ -41,6 +49,7 @@ useradd username
 ```
 
 - Creates a user entry in the system but does not create a home directory (`/home/username`).
+- Does not set a password.
 - Used mostly in scripts or automation.
 
 ```bash
@@ -48,7 +57,7 @@ cat /etc/default/useradd
 ```
 
 - It has the default settings for the useradd command.
-- When you run useradd username without additional options, the system applies these default values automatically.
+- When you run `useradd username` without additional options, the system applies these default values automatically.
 - You can modify this file to change default behavior system-wide, rather than specifying options every time they create a user.
 
 ### 5 Most Essential Options
@@ -63,11 +72,10 @@ cat /etc/default/useradd
 ## Check Created User:
 
 ```bash
-cat /etc/passwd
+id username
 ```
 
-- The `/etc/passwd` file contains details about all system users.
-- Each line represents one user entry.
+- Displays the user's UID, GID, and groups.
 
 ![New user](image.png)
 
@@ -165,8 +173,29 @@ su - username
 
 # Group Management
 
+- Group is a collection of users.
 - Groups are used to manage permissions for multiple users at once.
+- Instead of giving permissions one-by-one to 10 users, you:
+  - Create a group (e.g., devops)
+  - Add users to that group
+  - Assign permissions to the group
+- Now all users inside the group inherit that access.
 - Each user has one primary group and can be part of multiple secondary groups.
+
+## Types of Groups
+
+1. **Primary Group**
+   - Every user has one primary group.
+   - Created automatically when a user is added.
+   - Matches the user’s name (e.g., user `john` has primary group `john`).
+
+2. **Secondary Groups**
+   - Users can be added to multiple secondary groups.
+   - Used for managing permissions for multiple users at once.
+
+3. **System Groups**
+   - Used by services and applications.
+   - Not for human users.
 
 ## Creating a Group
 
@@ -180,15 +209,14 @@ su - username
 
 ```
 # cat /etc/group
+# getent group
 ```
 
 - Checks and Lists all groups and their member users.
 
 ### Delete a group
 
-```
-# groupdel groupname
-```
+`$sudo groupdel groupname`
 
 ### Add a User to a Group
 
@@ -201,13 +229,28 @@ su - username
 
 > Warning: If you forget the -a flag (e.g., usermod -G ...), you will remove the user from all other secondary groups and add them only to this one.
 
+### Remove a User from a Group
+
+```
+# gpasswd -d username groupname
+```
+
 ### List all Groups for a User
 
 ```
 # groups username
+$ sudo id username # UID, Primary GID, All group IDs
 ```
 
 - Lists the groups that a specific user is part of
+
+### List all Users in a Group
+
+```
+# getent group groupname
+```
+
+- Lists all users in a specific group.
 
 ## SSH (Secure Shell)
 
