@@ -17,6 +17,7 @@ This repository contains collection of notes, examples, and scripts to learn **L
 5. [File Permission](./05%20File%20Permission/README.md)
 6. [Process Management](./06-process-management/README.md)
 7. [Disk Management](./07-disk-management/README.md)
+8. [Service Management](./08-service-management/README.md)
 
 <!-- [Networking](./08-networking/README.md)
 
