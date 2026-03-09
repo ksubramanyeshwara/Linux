@@ -18,6 +18,7 @@ This repository contains collection of notes, examples, and scripts to learn **L
 6. [Process Management](./06-process-management/README.md)
 7. [Disk Management](./07-disk-management/README.md)
 8. [Service Management](./08-service-management/README.md)
+9. [Environment Variables, PATH](./09-path-conf-evnironment-variable/README.md)
 
 <!-- [Networking](./08-networking/README.md)
 
