@@ -1,10 +1,10 @@
 # Folder Structure
 
-- Linux uses a single rooted tree.
+- Linux uses a single root directory.
 - Everything starts at `/`. No drive letters.
 - The Filesystem Hierarchy Standard (FHS) defines what goes where so tools, packages, and admins stay consistent.
 
-## `/`
+## `/` Root Directory
 
 - The root of all directories.
 - Starting point for entire filesystem.
@@ -23,21 +23,25 @@
 
 ### `/bin`
 
-- Contains essential commands available to all users and system at boot.
-- It should be available even in single-user mode for system recovery.
-- Critical for system boot and repair operations.
+- Contains essential commands needed for boot and single user mode.
+- Commands like `ls`, `cp`, `cat`, `mv`, `rm`, `bash` reside here.
+
+> **Note:** In modern Linux systems, `/bin` is typically a symlink to `/usr/bin`.
 
 ### `/sbin`
 
-- Contains system administration commands.
-- It requires root level access and regular users cannot execute these commands.
+- Contains system administration and system management commands.
+- Some commands require root or elevated privileges, while others may be executable by regular users.
 - Used for system maintenance, configuration, and recovery tasks.
+- Commands like `ifconfig`, `fdisk`, `shutdown`, `ip`, `route` reside here.
+
+> **Note:** In modern Linux systems, `/sbin` is typically a symlink to `/usr/sbin`.
 
 ### `/lib`, `/lib64`
 
-- Contains essential shared libraries required by binaries in `/bin` and `/sbin` to boot the system and run the commands in the root filesystem.
-- It also includes `/lib/modules/` for kernel drivers.
-- It is used for making system calls to the hardware.
+- Contains essential shared libraries required `/bin` and `/sbin`.
+
+> **Note:** In modern Linux systems, `/lib` and `/lib64` are symlinks to `/usr/lib` and `/usr/lib64`.
 
 ## System and Hardware Information
 
@@ -47,62 +51,56 @@
 - Contains device files that represent hardware components and pseudo-devices.
 
 ```
-
 /dev/sda, /dev/sdb: Represents your hard drives or SSDs.
 /dev/tty1, /dev/pts/0: Represents your terminal sessions.
 /dev/random, /dev/urandom: Sources of random data.
-
 ```
 
 ### `/proc` Virtual Filesystem for Processes
 
-- A virtual directory (not real files) that provides runtime system information.
+- A virtual filesystem (not real files) that provides runtime system information.
+- Provides structured information about processes and kernel/system information.
 - Not stored on disk - exists only in memory.
-- Provides structured information about devices, drivers, and kernel features.
 
 ```
-
 /proc/cpuinfo: Information about the CPU.
 /proc/meminfo: Information about memory usage.
 /proc/loadavg: System load average.
 /proc/[pid]/: A directory for every running process, containing details about its execution.
-
 ```
 
 ### `/sys` System Information
 
-- Virtual filesystem for Kernel and Hardware information.
+- Virtual filesystem for drivers and hardware information.
 
 ## System Configuration
 
 ### `/etc` Configuration Files
 
-- Contains system wide configuration files.
+- System wide configuration files.
 - Editing these often requires root privileges.
 - DevOps engineers work with these files often.
 
 ```
-
 /etc/passwd: User account information.
 /etc/hosts: Local hostname mappings.
 /etc/group: Group information.
 /etc/fstab: Filesystem mount information.
 /etc/ssh/sshd_config: SSH server configuration.
-
 ```
 
 ## User Data and Home Directories
 
 ### `/root`
 
-- Home directory for root user.
-- It is limited to normal user.
+- Home directory for the root user account.
+- `/root` is normally accessible only to root.
 - Contains root user's personal files and configurations.
 
-> If you are normal user say, `/home/kumar` then if you switch to root user using `sudo su -` then you will be in `/root`.
+> If you are normal user say, `/home/kumar` then if you switch to root user using `sudo su -` then your working directory will change to `/root`.
 
-- `su` is used when you need tempory root access. It uses `/home/username` home directory.
-- `su -` is used when you need to switch to root user and load root user's environment variables.
+- `su` is used when you need tempory root access. Switches to root while keeping current user's working directory and existing environment variable.
+- `su -` Switches to root user with full login shell. It loads root user's environment variables and sets the working directory to `/root`.
 
 ### `/home`
 
@@ -114,17 +112,14 @@
 
 ### `/var` Variable Files
 
-- Contains files/data that change frequently. (logs, databases, caches, backups).
-- Contains files that are expected to grow in size over time.
+- Files/data changes while system is running. (logs, databases, caches, backups).
 
 ```
-
 /var/log/: System and application log files.
 /var/cache/: Application cache data.
 /var/spool/: Data waiting to be processed (Print/mail queues, cron jobs.)
 /var/tmp/: Temporary files preserved between reboots
 /var/www/: Web server files
-
 ```
 
 ### `/run` Runtime Data
@@ -138,25 +133,21 @@
 
 ### `/tmp` Temporary Files
 
-- Used by programs for temporary data.
-- Data are typically deleted upon system reboot. Don't store anything important.
+- Stores temporary files.
+- Usually cleared on reboot so don't store anything important in `/tmp` folder.
 
 ## Application and Software
 
 ### `/usr` User System Resources
 
-- One of the largest directories.
-- Contains the majority read-only user data and applications.
-- Contains user programs, libraries, and documentation.
+- Contains system wide applications, utilities, libraries, and documentation.
 
 ```
-
-/usr/bin: User commands binaries for all users.
-/usr/sbin: Non-essential system binaries.
-/usr/lib: Shared libraries needed by the binaries.
-/usr/share: Shared files like icons, documentation, man pages, timezone info, etc.
+/usr/bin: contains most user commands and executable programs.
+/usr/sbin: contains system administration commands.
+/usr/lib: contains shared libraries needed by the binaries.
+/usr/share: Architecture-independent shared data (man pages, icons, fonts, timezone data).
 /usr/local: Locally installed software.
-
 ```
 
 ### `/opt` Optional/Third-Party Software
@@ -179,7 +170,7 @@
 
 ### `/srv` Service Data
 
-- Contains data for services provided by the system.
+- Data served by the system.
 - If you run a web server, your website files could go in `/srv/www/`. If you run an FTP server, files could go in `/srv/ftp/`.
 
 ## Main Categories of Linux Filesystem
@@ -198,13 +189,29 @@
 
 > /bin, /lib, and /sbin are often just symbolic links (shortcuts) pointing to /usr/bin, /usr/lib, and /usr/sbin.
 
-> /bin relies on /lib: The executable programs inside /bin (like ls, cp, bash) are rarely self-contained. They rely on shared code (libraries) stored in /lib.
+> Many executables in /bin /sbin depend on shared libraries located under /lib or /usr/lib.
 
-> /usr relies on /etc: Almost every program installed in /usr/bin looks into /etc for its instructions.
+> Many system and application programs use configuration files stored under /etc.
 
-> / relies on /boot: The /boot directory contains the kernel (the core of the OS). The computer loads this first.
+> /boot contains boot-related files such as the Linux kernel and initramfs. The bootloader uses these files to start the operating system.
 
-> /var relies on /usr: The /var directory contains data that changes frequently. It relies on /usr for the programs that generate this data.
+> Programs installed under /usr may read or write runtime/application data stored under /var.
+
+## Production Examples
+
+- Logs: `/var/log/` → System and application logs.
+- Configurations: `/etc/` → System-wide configuration files.
+- User data: `/home/` → Users' personal files.
+- Applications: `/usr/` or `/opt/` → Installed software.
+- Temporary files: `/tmp/` → Temporary data.
+- Backups: `/var/backups/` → System backups.
+- Databases: `/var/lib/mysql/` → Common MySQL data location.
+- Web servers: `/var/www/html/` → Common web document root.
+- SSH: `/etc/ssh/` → SSH configuration files.
+
+# Path
+
+A path is an address for a file or folder. It tells the operating system where a file or folder is located. To access a file or a folder you can provide either Absolute Path or Relative Path.
 
 ## Absolute and Relative Paths
 
